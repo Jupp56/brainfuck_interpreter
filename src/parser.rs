@@ -14,7 +14,7 @@ pub enum ParseError {
 /// ## Validity
 /// This parser does only check for bracket validity. It does not determine in any way (even if possible) if there are i.e. underruns in cells.
 /// ## Optimizations
-/// The parser optimizes into the given instructions in instructions.rs.
+/// The parser optimizes into the given instructions in `program.rs`.
 /// It detects:
 /// - multiple succeeding operators (like +++ or <<<) get optimized into IncCell(3) or DecPtr(3)
 /// - [-] gets optimized into the ZeroCell operator, which zeroes a cell instantly instead of incremantally
@@ -23,32 +23,32 @@ pub enum ParseError {
 /// ```
 /// use brainfuck_interpreter::*;
 /// use brainfuck_interpreter::program::Instruction;
-/// let content = "><+-.,[]";
+/// let content = "><<+-.,[][-]";
 /// let program = parse_program(&mut content.to_string()).unwrap();
 /// let reference_result = vec![
 ///     Instruction::IncPtr(1),
-///     Instruction::DecPtr(1),
+///     Instruction::DecPtr(2),
 ///     Instruction::IncCell(1),
 ///     Instruction::DecCell(1),
 ///     Instruction::Output,
 ///     Instruction::Input,
 ///     Instruction::JumpForward(7),
 ///     Instruction::JumpBackward(6),
+///     Instruction::ZeroCell,
 /// ];
-/// for i in 0..8 {
+/// for i in 0..9 {
+///     println!("{:?}", program[i]);
 ///     assert_eq!(program[i], reference_result[i]);
 /// }
-///
 /// ```
 pub fn parse_program(mut raw_input: &mut String) -> Result<Program, ParseError> {
     strip_program(&mut raw_input);
-    pre_process_program(&mut raw_input);
+    let pre_processed_program = pre_process_program(&mut raw_input);
 
     let mut instructions: Program = Vec::new(); //list of all instructions found
     let mut markers_forward: Vec<usize> = Vec::new();
-    let chars: Vec<char> = raw_input.chars().collect();
+    let chars: Vec<char> = pre_processed_program.chars().collect();
     let input_len = chars.len();
-    //let mut last_instructions: Vec<Instruction> = Vec::new();
 
     for c in chars {
         match c {
@@ -225,7 +225,7 @@ fn look_for_find_zero(
 #[test]
 fn test_parse_simple_program() {
     use crate::program::*;
-    let content = "><+-.,[]";
+    let content = "><+-.,[][-]";
     let program = parse_program(&mut content.to_string()).unwrap();
     let reference_result = vec![
         Instruction::IncPtr(1),
@@ -236,8 +236,10 @@ fn test_parse_simple_program() {
         Instruction::Input,
         Instruction::JumpForward(7),
         Instruction::JumpBackward(6),
+        Instruction::ZeroCell
     ];
-    for i in 0..8 {
+    for i in 0..9 {
+        println!("{:?}", program[i]);
         assert_eq!(program[i], reference_result[i]);
     }
 }
