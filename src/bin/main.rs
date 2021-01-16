@@ -5,9 +5,11 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::io::Read;
 use std::time::Instant;
+use std::env::args;
 
 fn main() {
-    let path = OsStr::new("test.b");
+    let path = args().nth(1).expect("Error: please provide a path of the file to interpret.");
+    let path = OsStr::new(&path);
     let mut file_content = read_file(path);
     let program = parse_program(&mut file_content);
 
@@ -19,7 +21,7 @@ fn main() {
                 Err(e) => panic!(e),
             }
             let duration = start.elapsed();
-            println!("It took: {:?}", duration);
+            println!("Execution took: {:?}", duration);
         }
         Err(error) => match error {
             ParseError::BracketError(index) => {
