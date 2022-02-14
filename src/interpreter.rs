@@ -4,17 +4,19 @@ use crate::program::*;
 
 const STACK_LIMIT: usize = 30000;
 
-/// Error types that can happen during runtime
+#[derive(Debug)]
 pub enum RuntimeError {
     InputError(String),
     RegisterLimitExceededError
 }
 
 /// executes a program
-pub fn run_program(program: &Program) -> Result<(), RuntimeError> {
+pub fn run_program(program: &Program) -> Result<String, RuntimeError> {
     let mut registers: [u32; STACK_LIMIT] = [0; STACK_LIMIT];
     let mut current_instruction_index: usize = 0;
     let mut current_register_index: usize = 0;
+
+    let mut res = String::new();
 
     loop {
         let inst = program.get(current_instruction_index);
@@ -33,7 +35,8 @@ pub fn run_program(program: &Program) -> Result<(), RuntimeError> {
                             Some(c) => c.to_string(),
                             None => registers[current_register_index].to_string(),
                         };
-                        print!("{}", ch_disp);
+                        res.push_str(&ch_disp);
+                        //print!("{}", ch_disp);
                     }
                     Instruction::Input => {
                         let mut buff: [u8; 1] = [0; 1];
@@ -91,5 +94,5 @@ pub fn run_program(program: &Program) -> Result<(), RuntimeError> {
         }
     }
 
-    Ok(())
+    Ok(res)
 }

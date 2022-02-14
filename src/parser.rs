@@ -41,7 +41,7 @@ pub enum ParseError {
 ///     assert_eq!(program[i], reference_result[i]);
 /// }
 /// ```
-pub fn parse_program(mut raw_input: &mut String) -> Result<Program, ParseError> {
+pub fn parse_program(mut raw_input: String) -> Result<Program, ParseError> {
     strip_program(&mut raw_input);
     let pre_processed_program = pre_process_program(&mut raw_input);
 
@@ -226,7 +226,7 @@ fn look_for_find_zero(
 fn test_parse_simple_program() {
     use crate::program::*;
     let content = "><+-.,[][-]";
-    let program = parse_program(&mut content.to_string()).unwrap();
+    let program = parse_program(content.to_string()).unwrap();
     let reference_result = vec![
         Instruction::IncPtr(1),
         Instruction::DecPtr(1),

@@ -1,5 +1,4 @@
-extern crate brainfuck_interpreter;
-use self::brainfuck_interpreter::*;
+
 
 use std::ffi::OsStr;
 use std::fs::File;
@@ -7,17 +6,20 @@ use std::io::Read;
 use std::time::Instant;
 use std::env::args;
 
+
+use brainfuck_interpreter::{ParseError, parse_program, run_program};
+
 fn main() {
     let path = args().nth(1).expect("Error: please provide a path of the file to interpret.");
     let path = OsStr::new(&path);
     let mut file_content = read_file(path);
-    let program = parse_program(&mut file_content);
+    let program = parse_program(file_content);
 
     match program {
         Ok(program) => {
             let start = Instant::now();
             match run_program(&program) {
-                Ok(_) => (),
+                Ok(result) => print!("{}", result),
                 Err(e) => panic!(e),
             }
             let duration = start.elapsed();
